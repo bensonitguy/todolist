@@ -1,0 +1,164 @@
+<!DOCTYPE html">
+<html>
+ <head>
+  <script src="jquery-1.7.1.min.js"></script>
+ <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+ <script type="text/javascript" src="js/bootstrap.min.js"></script>
+ </head>
+ <body>
+  <div class="container">
+ <h1>This is my backbone Page</h1>
+ <hr/><div></div>
+ <div class="page">
+
+ </div>
+ <script type="text/template" class="item_container">
+<li><%=name%></li>
+</script>
+ <script type="text/template" id="userslist">
+ <input type="text" class="form-control" placeholder="What to do next?" name="todo_item" id="todo_item"/>
+<hr/>
+<button class="btn btn-primary" id="addnew_item">New Todo</button>
+<table class="table striped">
+ <thead>
+<tr>
+<td>
+Todo List
+</td>
+
+</tr>
+</thead>
+<tbody>
+<%_.each(users,function (user){%>
+<tr>
+<td><%=user.get('todoitem')%></td>
+</tr>
+<%});%>
+</tbody>
+</table>
+</script>
+ </div>
+
+ <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+ <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
+ <script>
+ 
+ var Todo = Backbone.Model.extend({
+		url : '/backbone_2014_8_4'
+		 
+	 });
+	 
+ UserCollection = Backbone.Collection.extend({
+	 model : Todo,
+	url :'/backbone_2014_8_4' 
+ });
+ 
+
+ 
+ //display the values from json 
+ var UserView = Backbone.View.extend({
+	el : '.page',
+	render : function (){
+		var that = this;
+		var users = new UserCollection();
+		users.fetch({
+			success : function(){
+				var template = _.template($('#userslist').html(),{users:users.models});
+				that.$el.html(template);
+			}
+		});
+		
+	}
+ });
+ TestModel = Backbone.Model.extend();
+
+ TestCollection = Backbone.Collection.extend({
+	Model : TestModel,
+	url :'#'
+ });
+ test = new TestCollection([
+     {name : 'benson'},
+     {name : 'michael'}
+     ]); 
+  
+ ListView = Backbone.View.extend({
+		tagName : 'ul',
+		initialize : function(){
+			this.template = _.template($(".item_container").html());
+			
+		},
+		render : function(){
+			/* this.$el.append("<li>hello</li>");
+			this.$el.append("<li>world</li>");
+			this.$el.append(this.template({value : "hello world"})); */
+			var el = this.$el,template =this.template;
+			test.each(function(tests){
+				el.append(template(tests.toJSON()));
+			});
+			return this;
+		}
+	 });
+ 
+ TestView = Backbone.View.extend({
+	 el : 'body',
+	 initialize : function(){
+		 this.render();
+	 },
+	 
+	 render : function(){
+		 
+		 this.$el.append("<h1>hello</h1>");
+		 this.listview = new ListView();
+		 this.$el.append(this.listview.render().el);
+		 return this;
+	 }
+ });
+ 
+ 
+ 
+
+ AddTodo = Backbone.View.extend({
+	el : '.page',
+	events:{
+		'click #addnew_item':'saveTodo'
+	},
+	saveTodo : function(ev){
+		var todo = new Todo();
+		var todo_item=$("#todo_item").val();
+		
+		 var obj = {todoitem : todo_item};
+		 
+		 todo.save(obj,{success:function(){
+			 
+		 }});
+		console.log(obj);
+		
+	
+	}
+ });
+ var userview = new UserView();
+var addtodo = new AddTodo(); 
+var Router = Backbone.Router.extend({
+	routes : {
+		'' : 'home'
+	
+	} 
+ });
+ 
+ var router = new Router();
+ router.on('route:home',function(){
+	console.log("router works fine");
+	userview.render();
+ });
+ 
+ 
+ router.on('route:addTodo',function(){
+		console.log("add new todo");
+		//addtodo.render();
+		
+	 });
+ 
+ Backbone.history.start();
+ </script>
+ </body>
+</html>
